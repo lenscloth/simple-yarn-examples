@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven Bundle Plugin
+Built-By: mturk
+Build-Jdk: 1.7.0_09-icedtea
+Implementation-Build: UNKNOWN_BRANCH@r??????; 2013-02-06 19:20:07+0100
+Implementation-Title: Commons Daemon
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Implementation-Version: 1.0.13
+Specification-Title: Commons Daemon
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.0.13
+X-Compile-Source-JDK: 1.3
+X-Compile-Target-JDK: 1.3
+Export-Package: org.apache.commons.daemon.support;version="1.0.13",org
+ .apache.commons.daemon;version="1.0.13"
+Tool: Bnd-1.43.0
+Bundle-Name: Commons Daemon
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 1.0.13
+Bnd-LastModified: 1360174812846
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: Apache Commons Daemon software provides an alterna
+ tive invocation mechanism for unix-daemon-like Java code.
+Bundle-DocURL: http://commons.apache.org/daemon/
+Include-Resource: META-INF/LICENSE.txt=LICENSE.txt,META-INF/NOTICE.txt
+ =NOTICE.txt
+Bundle-SymbolicName: org.apache.commons.daemon
+

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.6.5
+Created-By: Apache Maven
+Built-By: edburns
+Package: 
+Build-Jdk: 1.5.0_06
+Extension-Name: servlet-api
+Specification-Title: A component of the Glassfish Application Server
+Specification-Vendor: Sun Microsystems Inc
+Implementation-Title: 
+Implementation-Vendor: Sun Microsystems Inc
+Implementation-Version: 2.5
+

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Title: htrace-core
+Implementation-Version: 3.1.0-incubating
+Implementation-Vendor-Id: org.apache.htrace
+Built-By: stack
+Build-Jdk: 1.7.0_51
+Specification-Vendor: The Apache Software Foundation
+Specification-Title: htrace-core
+Created-By: Apache Maven 3.0.5
+Specification-Version: 3.1.0-incubating
+Archiver-Version: Plexus Archiver
+

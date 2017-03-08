@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Export-Package: org.xerial.snappy;uses:="org.osgi.framework"
+Built-By: leo
+Tool: Bnd-1.15.0
+Bundle-Name: org.xerial.snappy.snappy-java
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: xerial.org
+Build-Jdk: 1.6.0_21
+Bundle-Version: 1.0.4.1
+Bnd-LastModified: 1317778496724
+Bundle-Activator: org.xerial.snappy.SnappyBundleActivator
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: snappy-java: A fast compression/decompression libr
+ ary
+Bundle-DocURL: http://www.xerial.org/
+Bundle-SymbolicName: org.xerial.snappy.snappy-java
+Import-Package: org.osgi.framework;version="[1.6,2)"
+

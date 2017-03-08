@@ -701,4 +701,161 @@ public class Client {
 
         // Submit the application to the applications manager
         // SubmitApplicationResponse submitResp = applicationsManager.submitApplication(appRequest);
-        /
+        // Ignore the response as either a valid response object is returned on success
+        // or an exception thrown to denote some form of a failure
+        LOG.info("Submitting application to ASM");
+
+        yarnClient.submitApplication(appContext);
+
+        // TODO
+        // Try submitting the same request again
+        // app submission failure?
+
+        // Monitor the application
+        return monitorApplication(appId);
+
+    }
+
+    /**
+     * Monitor the submitted application for completion.
+     * Kill application if time expires.
+     * @param appId Application Id of application to be monitored
+     * @return true if application completed successfully
+     * @throws YarnException
+     * @throws IOException
+     */
+    private boolean monitorApplication(ApplicationId appId)
+            throws YarnException, IOException {
+
+        while (true) {
+
+            // Check app status every 1 second.
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                LOG.debug("Thread sleep in monitoring loop interrupted");
+            }
+
+            // Get application report for the appId we are interested in
+            ApplicationReport report = yarnClient.getApplicationReport(appId);
+
+            LOG.info("Got application report from ASM for"
+                    + ", appId=" + appId.getId()
+                    + ", clientToAMToken=" + report.getClientToAMToken()
+                    + ", appDiagnostics=" + report.getDiagnostics()
+                    + ", appMasterHost=" + report.getHost()
+                    + ", appQueue=" + report.getQueue()
+                    + ", appMasterRpcPort=" + report.getRpcPort()
+                    + ", appStartTime=" + report.getStartTime()
+                    + ", yarnAppState=" + report.getYarnApplicationState().toString()
+                    + ", distributedFinalState=" + report.getFinalApplicationStatus().toString()
+                    + ", appTrackingUrl=" + report.getTrackingUrl()
+                    + ", appUser=" + report.getUser());
+
+            YarnApplicationState state = report.getYarnApplicationState();
+            FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
+            if (YarnApplicationState.FINISHED == state) {
+                if (FinalApplicationStatus.SUCCEEDED == dsStatus) {
+                    LOG.info("Application has completed successfully. Breaking monitoring loop");
+                    return true;
+                }
+                else {
+                    LOG.info("Application did finished unsuccessfully."
+                            + " YarnState=" + state.toString() + ", DSFinalStatus=" + dsStatus.toString()
+                            + ". Breaking monitoring loop");
+                    return false;
+                }
+            }
+            else if (YarnApplicationState.KILLED == state
+                    || YarnApplicationState.FAILED == state) {
+                LOG.info("Application did not finish."
+                        + " YarnState=" + state.toString() + ", DSFinalStatus=" + dsStatus.toString()
+                        + ". Breaking monitoring loop");
+                return false;
+            }
+
+            if (System.currentTimeMillis() > (clientStartTime + clientTimeout)) {
+                LOG.info("Reached client specified timeout for application. Killing application");
+                forceKillApplication(appId);
+                return false;
+            }
+        }
+
+    }
+
+    /**
+     * Kill a submitted application by sending a call to the ASM
+     * @param appId Application Id to be killed.
+     * @throws YarnException
+     * @throws IOException
+     */
+    private void forceKillApplication(ApplicationId appId)
+            throws YarnException, IOException {
+        // TODO clarify whether multiple jobs with the same app id can be submitted and be running at
+        // the same time.
+        // If yes, can we kill a particular attempt only?
+
+        // Response can be ignored as it is non-null on success or
+        // throws an exception in case of failures
+        yarnClient.killApplication(appId);
+    }
+
+    private void addToLocalResources(FileSystem fs, String fileSrcPath,
+                                     String fileDstPath, String appId, Map<String, LocalResource> localResources,
+                                     String resources) throws IOException {
+        String suffix =
+                appName + "/" + appId + "/" + fileDstPath;
+        Path dst =
+                new Path(fs.getHomeDirectory(), suffix);
+        if (fileSrcPath == null) {
+            FSDataOutputStream ostream = null;
+            try {
+                ostream = FileSystem
+                        .create(fs, dst, new FsPermission((short) 0));
+                ostream.writeUTF(resources);
+            } finally {
+                IOUtils.closeQuietly(ostream);
+            }
+        } else {
+            fs.copyFromLocalFile(new Path(fileSrcPath), dst);
+        }
+        FileStatus scFileStatus = fs.getFileStatus(dst);
+        LocalResource scRsrc =
+                LocalResource.newInstance(
+                        ConverterUtils.getYarnUrlFromURI(dst.toUri()),
+                        LocalResourceType.FILE, LocalResourceVisibility.APPLICATION,
+                        scFileStatus.getLen(), scFileStatus.getModificationTime());
+        localResources.put(fileDstPath, scRsrc);
+    }
+
+    private void prepareTimelineDomain() {
+        TimelineClient timelineClient = null;
+        if (conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED,
+                YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ENABLED)) {
+            timelineClient = TimelineClient.createTimelineClient();
+            timelineClient.init(conf);
+            timelineClient.start();
+        } else {
+            LOG.warn("Cannot put the domain " + domainId +
+                    " because the timeline service is not enabled");
+            return;
+        }
+        try {
+            //TODO: we need to check and combine the existing timeline domain ACLs,
+            //but let's do it once we have client java library to query domains.
+            TimelineDomain domain = new TimelineDomain();
+            domain.setId(domainId);
+            domain.setReaders(
+                    viewACLs != null && viewACLs.length() > 0 ? viewACLs : " ");
+            domain.setWriters(
+                    modifyACLs != null && modifyACLs.length() > 0 ? modifyACLs : " ");
+            timelineClient.putDomain(domain);
+            LOG.info("Put the timeline domain: " +
+                    TimelineUtils.dumpTimelineRecordtoJSON(domain));
+        } catch (Exception e) {
+            LOG.error("Error when putting the timeline domain", e);
+        } finally {
+            timelineClient.stop();
+        }
+    }
+}

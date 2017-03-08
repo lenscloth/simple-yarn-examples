@@ -1,0 +1,50 @@
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala)[0m
+[0m[[0mdebug[0m] [0m	added: Set()[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mExternal API changes: API Changes: Set()[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m	external source: Set()[0m
+[0m[[0mdebug[0m] [0mAll initially invalidated sources: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala, /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala)[0m
+[0m[[0mdebug[0m] [0mRecompiling all 1 sources: invalidated sources (3) exceeded 50.0% of all sources[0m
+[0m[[0minfo[0m] [0mCompiling 1 Java source to /home/wppark/IdeaProjects/simple-yarn-examples/target/scala-2.12/classes...[0m
+[0m[[0mdebug[0m] [0mAttempting to call javac directly...[0m
+[0m[[0mdebug[0m] [0mcom.sun.tools.javac.Main not found with appropriate method signature; forking javac instead[0m
+[0m[[0mdebug[0m] [0mForking javac: javac @/tmp/sbt_9488d0f9/argfile[0m
+[0m[[0mdebug[0m] [0mjavac returned exit code: 0[0m
+[0m[[0mdebug[0m] [0mJava compilation took 0.49379617 s[0m
+[0m[[0mdebug[0m] [0mJava analysis took 0.011985866 s[0m
+[0m[[0mdebug[0m] [0mInvalidating /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala)[0m
+[0m[[0mdebug[0m] [0mThe /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/AppMaster.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, priority, wait, $asInstanceOf, requestPriority, equals, asInstanceOf, synchronized, $isInstanceOf, launchContainer, containerMemory, notifyAll, conf, isInstanceOf, <init>, AppMaster, ==, clone, appAttemptID, amRMClient, capability, nmClient, containerVirtualCores, envs, toString, containerId, !=, getClass, LOG, ne, eq, ##, finalize, hashCode.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mInvalidating /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala)[0m
+[0m[[0mdebug[0m] [0mThe /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Client.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, wait, $asInstanceOf, equals, yarnClient, asInstanceOf, synchronized, launchApp, $isInstanceOf, main, notifyAll, conf, isInstanceOf, <init>, ==, clone, toString, !=, getClass, LOG, Client, ne, eq, createApp, ##, finalize, hashCode, hdfs.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mInvalidating /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(/home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala)[0m
+[0m[[0mdebug[0m] [0mThe /home/wppark/IdeaProjects/simple-yarn-examples/src/main/scala-2.12/Flatter.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, wait, $asInstanceOf, equals, asInstanceOf, Flatter, synchronized, $isInstanceOf, main, notifyAll, isInstanceOf, ==, clone, toString, !=, getClass, ne, eq, ##, finalize, hashCode.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mNew invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set()[0m
+[0m[[0mdebug[0m] [0mPreviously invalidated, but (transitively) depend on new invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mAll newly invalidated sources after taking into account (previously) recompiled sources:Set()[0m
