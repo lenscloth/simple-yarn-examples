@@ -10,17 +10,17 @@ object HDFSUtils {
       val dstPath = new Path(stagingDirectory, file)
       /** Load local file to HDFS **/
       fs.copyFromLocalFile(new Path(file), dstPath)
-
-      val fileStatus = fs.getFileStatus(dstPath)
-      val localResource =
-        LocalResource.newInstance(
-          ConverterUtils.getYarnUrlFromURI(dstPath.toUri),
-          LocalResourceType.FILE,
-          LocalResourceVisibility.APPLICATION,
-          fileStatus.getLen,
-          fileStatus.getModificationTime)
-
-      (file, localResource)
+      (file, toLocalResource(fs, stagingDirectory, file))
     }.toMap
 
+  def toLocalResource(fs: FileSystem, stagingDirectory: Path, file: String): LocalResource = {
+    val dstPath = new Path(stagingDirectory, file)
+    val fileStatus = fs.getFileStatus(dstPath)
+    LocalResource.newInstance(
+      ConverterUtils.getYarnUrlFromURI(dstPath.toUri),
+      LocalResourceType.FILE,
+      LocalResourceVisibility.APPLICATION,
+      fileStatus.getLen,
+      fileStatus.getModificationTime)
+  }
 }

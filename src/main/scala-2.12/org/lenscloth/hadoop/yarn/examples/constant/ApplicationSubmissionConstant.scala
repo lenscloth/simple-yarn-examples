@@ -1,6 +1,6 @@
-package org.lenscloth.hadoop.yarn.examples.utils
+package org.lenscloth.hadoop.yarn.examples.constant
 
-object ClientConstant {
+object ApplicationSubmissionConstant {
   val defaultMaxAttempt: Int = 3
   val defaultAttemptFailureValidityInterval: Long = 1000 * 3600
 

@@ -1,12 +1,13 @@
 package org.lenscloth.hadoop.yarn.examples.component
 
 import org.apache.commons.logging.LogFactory
-import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.security.Credentials
 import org.apache.hadoop.yarn.api.records._
 import org.apache.hadoop.yarn.client.api.YarnClient
 import org.apache.hadoop.yarn.conf.YarnConfiguration
-import org.lenscloth.hadoop.yarn.examples.utils.{ClientConstant, HDFSUtils, SecurityUtils}
+import org.lenscloth.hadoop.yarn.examples.constant.ApplicationSubmissionConstant
+import org.lenscloth.hadoop.yarn.examples.utils.{HDFSUtils, SecurityUtils}
 
 import scala.collection.JavaConverters._
 
@@ -42,12 +43,13 @@ class Client {
              env: Map[String, String],
              appMasterCMD: List[String],
              priority: Priority,
-             queue: String): ApplicationSubmissionContext = {
+             queue: String,
+             stagingDir: Path): ApplicationSubmissionContext = {
     val newApp = yarnClient.createApplication()
     val appSubmissionContext = newApp.getApplicationSubmissionContext
-
+    
     /** local resouces for application master container */
-    val localResouces = HDFSUtils.loadLocalResources(hdfs, hdfs.getHomeDirectory, resources)
+    val localResouces = HDFSUtils.loadLocalResources(hdfs, stagingDir, resources)
 
     /** Delegation token that has permission to access HDFS */
     val cred = new Credentials()
@@ -57,7 +59,7 @@ class Client {
     val amContainerLaunchContext = ContainerLaunchContext.newInstance(localResouces.asJava, env.asJava, appMasterCMD.asJava, null, tokens, null)
 
     /** Memory and CPU that will be allocated for app master */
-    val resource = Resource.newInstance(ClientConstant.defaultMemory, ClientConstant.defaultCore)
+    val resource = Resource.newInstance(ApplicationSubmissionConstant.defaultMemory, ApplicationSubmissionConstant.defaultCore)
 
     /** Set applicationSubmissionContext **/
     appSubmissionContext.setApplicationName(name)
@@ -70,15 +72,15 @@ class Client {
     appSubmissionContext.setAMContainerSpec(amContainerLaunchContext)
 
     /** Attempt application submission 3 times util success */
-    appSubmissionContext.setMaxAppAttempts(ClientConstant.defaultMaxAttempt)
-    appSubmissionContext.setAttemptFailuresValidityInterval(ClientConstant.defaultAttemptFailureValidityInterval)
+    appSubmissionContext.setMaxAppAttempts(ApplicationSubmissionConstant.defaultMaxAttempt)
+    appSubmissionContext.setAttemptFailuresValidityInterval(ApplicationSubmissionConstant.defaultAttemptFailureValidityInterval)
 
     /** Even if application submission fail, Container should be kept
       * and its local resources should be remained on that container
       *
       * The container will be used again to attempt application submission
       */
-    appSubmissionContext.setKeepContainersAcrossApplicationAttempts(ClientConstant.defaultKeepContainerAcrossApplicationAttempts)
+    appSubmissionContext.setKeepContainersAcrossApplicationAttempts(ApplicationSubmissionConstant.defaultKeepContainerAcrossApplicationAttempts)
     appSubmissionContext
   }
 
