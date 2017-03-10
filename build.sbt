@@ -2,7 +2,7 @@ name := "SimpleYarn"
 
 version := "1.0"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.11.8"
 
 // Dependencies for main
 libraryDependencies ++= Seq(

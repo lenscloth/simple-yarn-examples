@@ -1,13 +1,16 @@
 package org.lenscloth.hadoop.yarn.examples.component
 
+import java.io.File
+
 import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.security.Credentials
 import org.apache.hadoop.yarn.api.records._
 import org.apache.hadoop.yarn.client.api.YarnClient
 import org.apache.hadoop.yarn.conf.YarnConfiguration
-import org.lenscloth.hadoop.yarn.examples.constant.ApplicationSubmissionConstant
-import org.lenscloth.hadoop.yarn.examples.utils.{HDFSUtils, SecurityUtils}
+import org.lenscloth.hadoop.yarn.examples.constant.{ApplicationSubmissionConstant, ContainerLaunchConstant}
+import org.lenscloth.hadoop.yarn.examples.utils.{ContainerLaunchUtils, HDFSUtils, SecurityUtils}
+import org.apache.hadoop.yarn.api.ApplicationConstants.Environment
 
 import scala.collection.JavaConverters._
 
@@ -47,19 +50,21 @@ class Client {
              stagingDir: Path): ApplicationSubmissionContext = {
     val newApp = yarnClient.createApplication()
     val appSubmissionContext = newApp.getApplicationSubmissionContext
-    
-    /** local resouces for application master container */
-    val localResouces = HDFSUtils.loadLocalResources(hdfs, stagingDir, resources)
+
+    val containerResources = HDFSUtils.loadLocalResources(hdfs, stagingDir, resources)
+
+    /** Envs for AppMaster */
+    val containerEnv = ContainerLaunchUtils.appendClassPath(env, conf)
 
     /** Delegation token that has permission to access HDFS */
     val cred = new Credentials()
     SecurityUtils.loadHDFSCredential(hdfs, conf, cred)
     val tokens = SecurityUtils.wrapToByteBuffer(cred)
 
-    val amContainerLaunchContext = ContainerLaunchContext.newInstance(localResouces.asJava, env.asJava, appMasterCMD.asJava, null, tokens, null)
+    val amContainerLaunchContext = ContainerLaunchContext.newInstance(containerResources.asJava, containerEnv.asJava, appMasterCMD.asJava, null, tokens, null)
 
     /** Memory and CPU that will be allocated for app master */
-    val resource = Resource.newInstance(ApplicationSubmissionConstant.defaultMemory, ApplicationSubmissionConstant.defaultCore)
+    val resource = Resource.newInstance(ContainerLaunchConstant.defaultMemory, ContainerLaunchConstant.defaultCore)
 
     /** Set applicationSubmissionContext **/
     appSubmissionContext.setApplicationName(name)
@@ -84,8 +89,10 @@ class Client {
     appSubmissionContext
   }
 
-  def submitApp(applicationSubmissionContext: ApplicationSubmissionContext): Unit = {
+  def submitApp(applicationSubmissionContext: ApplicationSubmissionContext, timeout: Option[Long]): Unit = {
     val appId = applicationSubmissionContext.getApplicationId
+    val submitTime = System.currentTimeMillis()
+
     yarnClient.submitApplication(applicationSubmissionContext)
 
     def recReport(): Unit = {
@@ -95,7 +102,12 @@ class Client {
 
       state match {
         case YarnApplicationState.FAILED | YarnApplicationState.FINISHED | YarnApplicationState.KILLED => /** stop reporting **/
-        case _ => recReport() /** keep reporting **/
+        case _ =>
+          /** If timeout is not specified then run report recursively Else run report only before timeout */
+         def rec: () => Unit = timeout.map (limit =>
+           () => { if(limit < System.currentTimeMillis() - submitTime) recReport() }
+           ).getOrElse(recReport)
+         rec()
       }
     }
 

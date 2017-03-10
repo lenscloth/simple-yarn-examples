@@ -6,8 +6,5 @@ object ApplicationSubmissionConstant {
 
   val defaultQueue: String = "default"
 
-  val defaultMemory : Int = 1024
-  val defaultCore: Int = 1
-
   val defaultKeepContainerAcrossApplicationAttempts: Boolean = true
 }

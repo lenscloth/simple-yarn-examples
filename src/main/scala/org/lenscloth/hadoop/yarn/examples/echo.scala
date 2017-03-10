@@ -4,6 +4,7 @@ import component.Client
 import org.apache.hadoop.yarn.api.records.Priority
 import org.lenscloth.hadoop.yarn.examples.constant.ApplicationSubmissionConstant
 import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.yarn.api.ApplicationConstants
 import org.apache.hadoop.yarn.conf.YarnConfiguration
 
 object echo {
@@ -22,12 +23,12 @@ object echo {
         name,
         List.empty[String],
         Map.empty[String, String],
-        List("echo", args.mkString(" ")),
+        List("echo", args.mkString(" "), ">", s"${ApplicationConstants.LOG_DIR_EXPANSION_VAR}/stdout"),
         priority,
         queue,
         path
       )
 
-    yarnClient.submitApp(app)
+    yarnClient.submitApp(app, Some(60 * 1000))
   }
 }
