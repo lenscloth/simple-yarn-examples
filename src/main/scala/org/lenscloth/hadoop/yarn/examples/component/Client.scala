@@ -1,7 +1,5 @@
 package org.lenscloth.hadoop.yarn.examples.component
 
-import java.io.File
-
 import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.security.Credentials
@@ -10,7 +8,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient
 import org.apache.hadoop.yarn.conf.YarnConfiguration
 import org.lenscloth.hadoop.yarn.examples.constant.{ApplicationSubmissionConstant, ContainerLaunchConstant}
 import org.lenscloth.hadoop.yarn.examples.utils.{ContainerLaunchUtils, HDFSUtils, SecurityUtils}
-import org.apache.hadoop.yarn.api.ApplicationConstants.Environment
 
 import scala.collection.JavaConverters._
 
@@ -31,7 +28,7 @@ class Client {
   /**
     *
     * @param name appName
-    * @param resources localResources that will be loaded on the AppMaster container
+    * @param appMasterResources localResources that will be loaded on the AppMaster container
     * @param env Environment variable for AppMaster
     * @param appMasterCMD Commands to launch AppMaster
     * @param priority priority of the submitted application
@@ -42,26 +39,22 @@ class Client {
     * and submit that applicationSubmissionContext to yarnClient
     */
   def newApp(name: String,
-             resources: List[String],
+             appMasterResources: Map[String, LocalResource],
              env: Map[String, String],
              appMasterCMD: List[String],
              priority: Priority,
              queue: String,
-             stagingDir: Path): ApplicationSubmissionContext = {
+             credentials: Credentials): ApplicationSubmissionContext = {
     val newApp = yarnClient.createApplication()
     val appSubmissionContext = newApp.getApplicationSubmissionContext
 
-    val containerResources = HDFSUtils.loadLocalResources(hdfs, stagingDir, resources)
-
     /** Envs for AppMaster */
-    val containerEnv = ContainerLaunchUtils.appendClassPath(env, conf)
+    val containerEnv = ContainerLaunchUtils.appendYarnClassPath(env, conf, appMasterResources.keys.toList)
 
     /** Delegation token that has permission to access HDFS */
-    val cred = new Credentials()
-    SecurityUtils.loadHDFSCredential(hdfs, conf, cred)
-    val tokens = SecurityUtils.wrapToByteBuffer(cred)
+    val tokens = SecurityUtils.wrapToByteBuffer(credentials)
 
-    val amContainerLaunchContext = ContainerLaunchContext.newInstance(containerResources.asJava, containerEnv.asJava, appMasterCMD.asJava, null, tokens, null)
+    val amContainerLaunchContext = ContainerLaunchContext.newInstance(appMasterResources.asJava, containerEnv.asJava, appMasterCMD.asJava, null, tokens, null)
 
     /** Memory and CPU that will be allocated for app master */
     val resource = Resource.newInstance(ContainerLaunchConstant.defaultMemory, ContainerLaunchConstant.defaultCore)

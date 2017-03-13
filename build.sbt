@@ -8,7 +8,8 @@ scalaVersion := "2.11.8"
 libraryDependencies ++= Seq(
   "org.apache.hadoop" % "hadoop-common" % "2.7.3",
   "org.apache.hadoop" % "hadoop-hdfs" % "2.7.3",
-  "org.apache.hadoop" % "hadoop-yarn-client" % "2.7.3"
+  "org.apache.hadoop" % "hadoop-yarn-client" % "2.7.3",
+  "com.github.scopt" %% "scopt" % "3.5.0"
 )
 
 assemblyMergeStrategy in assembly := {

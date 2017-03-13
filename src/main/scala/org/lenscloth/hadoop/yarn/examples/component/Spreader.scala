@@ -12,37 +12,36 @@ import org.lenscloth.hadoop.yarn.examples.utils.{ContainerLaunchUtils, HDFSUtils
 
 import scala.collection.JavaConverters._
 
-object ApplicationMaster {
+object Spreader {
   def main(args: Array[String]): Unit = {
-    val containerCMD = args(0).split(" ").toList
-    val stagingDir = new Path(args(1))
-    val nTimes = args(2).toInt
-    val stagedResources = args(3).split(" ").toList
+    val nTimes = args(0).toInt
+    val containerCMD = args.tail.toList
 
-    val appMaster = new ApplicationMaster (
+    val stagingDir = new Path(System.getenv("STAGING_DIR"))
+    val stagedResources = System.getenv("RESOURCES").split(" ").toList
+
+    val appMaster = new Spreader (
       containerCMD,
       stagingDir,
       stagedResources
     )
 
-    appMaster.run(nTimes)
+    appMaster.spread(nTimes)
   }
 }
 
 /**
   * This application master launches multiple container that runs same process
   */
-class ApplicationMaster(containerCMD: List[String], stagingDir: Path, stagedResources: List[String]) {
-  private val envs = ContainerLaunchUtils.appendClassPath(Map.empty[String, String], conf)
+class Spreader(containerCMD: List[String], stagingDir: Path, stagedResources: List[String]) {
   private val conf = new YarnConfiguration()
+  private val envs = ContainerLaunchUtils.appendYarnClassPath(Map.empty[String, String], conf, stagedResources)
   private val hdfs: FileSystem = FileSystem.get(conf)
 
-  private val LOG = LogFactory.getLog(classOf[ApplicationMaster])
+  private val LOG = LogFactory.getLog(classOf[Spreader])
 
   /** For simple demonstration, all containers (AM, or other containers) have same localResources */
-  private val containerResources: Map[String, LocalResource] =
-    stagedResources.map { r =>
-      (r, HDFSUtils.toLocalResource(hdfs, stagingDir, r))}.toMap
+  private val containerResources: Map[String, LocalResource] = stagedResources.map( r => (r, HDFSUtils.toLocalResource(hdfs, stagingDir, r))).toMap
 
   private val amRMClient: AMRMClient[AMRMClient.ContainerRequest] = AMRMClient.createAMRMClient()
   private val nmClient: NMClient = NMClient.createNMClient()
@@ -54,14 +53,13 @@ class ApplicationMaster(containerCMD: List[String], stagingDir: Path, stagedReso
   nmClient.init(conf)
   nmClient.start()
 
-  def run(n: Int): Unit = {
+  def spread(n: Int): Unit = {
     val resource = Resource.newInstance(ContainerLaunchConstant.defaultMemory, ContainerLaunchConstant.defaultCore)
     val priority = Priority.newInstance(0)
 
     val cred = new Credentials()
     SecurityUtils.loadHDFSCredential(hdfs, conf, cred)
     val tokens = SecurityUtils.wrapToByteBuffer(cred)
-
 
     val containerLaunchContext =
       ContainerLaunchContext.newInstance(containerResources.asJava, envs.asJava ,containerCMD.asJava, null, tokens, null)
