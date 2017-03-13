@@ -23,7 +23,6 @@ object run {
     optConfig.foreach { config =>
       val name = config.name
       val resources = config.resources.toList
-      println(s"Resources: $resources")
       val stagingDir = config.stagingDir
       val command = config.command.split(" ").toList ++ List(">", s"${ApplicationConstants.LOG_DIR_EXPANSION_VAR}/stdout")
 

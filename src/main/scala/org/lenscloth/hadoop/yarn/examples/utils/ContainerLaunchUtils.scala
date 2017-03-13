@@ -8,12 +8,15 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration
 
 object ContainerLaunchUtils {
   def appendYarnClassPath(env: Map[String, String], conf: Configuration, resources: List[String]): Map[String, String] = {
-    val yarnClassPathEnv =
-      conf.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH, YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH: _*)
-        .map(e => (Environment.CLASSPATH.name(), e.trim)).toMap
-    val containerLocalDirectory = Map((Environment.CLASSPATH.name(), s"${Environment.PWD.$()}${File.separator}*"))
-    val resourceClassPath = resources.map ( r => (Environment.CLASSPATH.name(), r.trim)).toMap
+    val cp1 =
+      conf.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH, YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH: _*).mkString(":")
 
-    yarnClassPathEnv ++ containerLocalDirectory ++ resourceClassPath ++ env
+    val cp2 =
+      cp1 + ":" + s"${Environment.PWD.$()}${File.separator}*"
+
+    val cp3 =
+      cp2 + ":" + resources.mkString(":")
+
+    env ++ Map((Environment.CLASSPATH.name(), cp3))
   }
 }

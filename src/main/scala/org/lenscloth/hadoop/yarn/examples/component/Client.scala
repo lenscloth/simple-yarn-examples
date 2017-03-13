@@ -45,6 +45,8 @@ class Client {
              priority: Priority,
              queue: String,
              credentials: Credentials): ApplicationSubmissionContext = {
+
+
     val newApp = yarnClient.createApplication()
     val appSubmissionContext = newApp.getApplicationSubmissionContext
 
@@ -78,6 +80,13 @@ class Client {
       *
       * The container will be used again to attempt application submission
       */
+
+    LOG.info(s"Job description \n" +
+      s"name: $name\n" +
+      s"resources: ${appMasterResources.keys}\n" +
+      s"environment: $containerEnv\n" +
+      s"application master command: ${appMasterCMD.mkString(" ")}\n")
+
     appSubmissionContext.setKeepContainersAcrossApplicationAttempts(ApplicationSubmissionConstant.defaultKeepContainerAcrossApplicationAttempts)
     appSubmissionContext
   }
