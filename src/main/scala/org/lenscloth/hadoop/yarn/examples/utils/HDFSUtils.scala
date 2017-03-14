@@ -14,12 +14,12 @@ object HDFSUtils {
     }.toMap
 
   def toLocalResource(fs: FileSystem, stagingDirectory: Path, file: String): LocalResource = {
-    val dstPath = new Path(stagingDirectory, file)
+    val dstPath = fs.resolvePath(new Path(stagingDirectory, file))
     val fileStatus = fs.getFileStatus(dstPath)
     LocalResource.newInstance(
       ConverterUtils.getYarnUrlFromURI(dstPath.toUri),
       LocalResourceType.FILE,
-      LocalResourceVisibility.APPLICATION,
+      LocalResourceVisibility.PUBLIC,
       fileStatus.getLen,
       fileStatus.getModificationTime)
   }

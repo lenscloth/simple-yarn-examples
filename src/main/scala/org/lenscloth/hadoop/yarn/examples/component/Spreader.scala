@@ -2,7 +2,8 @@ package org.lenscloth.hadoop.yarn.examples.component
 
 import org.apache.commons.logging.LogFactory
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.hadoop.security.Credentials
+import org.apache.hadoop.security.{Credentials, UserGroupInformation}
+import org.apache.hadoop.yarn.api.ApplicationConstants
 import org.apache.hadoop.yarn.api.records._
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest
 import org.apache.hadoop.yarn.client.api.{AMRMClient, NMClient}
@@ -57,14 +58,12 @@ class Spreader(containerCMD: List[String], stagingDir: Path, stagedResources: Li
     val resource = Resource.newInstance(ContainerLaunchConstant.defaultMemory, ContainerLaunchConstant.defaultCore)
     val priority = Priority.newInstance(0)
 
-    val cred = new Credentials()
-    SecurityUtils.loadHDFSCredential(hdfs, conf, cred)
+    val cred = UserGroupInformation.getCurrentUser.getCredentials
     val tokens = SecurityUtils.wrapToByteBuffer(cred)
 
-    val containerLaunchContext =
-      ContainerLaunchContext.newInstance(containerResources.asJava, envs.asJava ,containerCMD.asJava, null, tokens, null)
-
-    (1 to n).foreach { _ => amRMClient.addContainerRequest(new ContainerRequest(resource, null, null, priority)) }
+    (1 to n).foreach { _ =>
+      amRMClient.addContainerRequest(new ContainerRequest(resource, null, null, priority))
+    }
 
     LOG.info(s"Application Master is now launching $n containers")
 
@@ -72,13 +71,20 @@ class Spreader(containerCMD: List[String], stagingDir: Path, stagedResources: Li
       if(completedContainers < n) {
         val response = amRMClient.allocate(completedContainers/n.toFloat)
         response.getAllocatedContainers.asScala.foreach { container =>
+          val containerLaunchContext =
+            ContainerLaunchContext.newInstance(
+              containerResources.asJava,
+              envs.asJava ,
+              (containerCMD ++ List("1>",s"${ApplicationConstants.LOG_DIR_EXPANSION_VAR}/stdout","2>",s"${ApplicationConstants.LOG_DIR_EXPANSION_VAR}/stderr")).asJava,
+              null, tokens, null)
+
           LOG.info(s"Container ${container.getId.toString} started with command(${containerCMD.mkString(" ")})")
           nmClient.startContainer(container, containerLaunchContext)
         }
 
         val newCompletedContainers = response.getCompletedContainersStatuses
         newCompletedContainers.asScala.foreach { container =>
-          LOG.info(s"Container ${container.getContainerId} is completed with status ${container.getDiagnostics}")
+          LOG.info(s"Container ${container.getContainerId} is completed with exit status number ${container.getExitStatus}")
         }
 
         launchAndCheckProgress(completedContainers + newCompletedContainers.size())

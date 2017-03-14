@@ -45,8 +45,6 @@ class Client {
              priority: Priority,
              queue: String,
              credentials: Credentials): ApplicationSubmissionContext = {
-
-
     val newApp = yarnClient.createApplication()
     val appSubmissionContext = newApp.getApplicationSubmissionContext
 
@@ -74,6 +72,7 @@ class Client {
     /** Attempt application submission 3 times util success */
     appSubmissionContext.setMaxAppAttempts(ApplicationSubmissionConstant.defaultMaxAttempt)
     appSubmissionContext.setAttemptFailuresValidityInterval(ApplicationSubmissionConstant.defaultAttemptFailureValidityInterval)
+    appSubmissionContext.setKeepContainersAcrossApplicationAttempts(ApplicationSubmissionConstant.defaultKeepContainerAcrossApplicationAttempts)
 
     /** Even if application submission fail, Container should be kept
       * and its local resources should be remained on that container
@@ -81,13 +80,13 @@ class Client {
       * The container will be used again to attempt application submission
       */
 
-    LOG.info(s"Job description \n" +
+    LOG.info(
+      s"Job description \n" +
       s"name: $name\n" +
       s"resources: ${appMasterResources.keys}\n" +
       s"environment: $containerEnv\n" +
       s"application master command: ${appMasterCMD.mkString(" ")}\n")
 
-    appSubmissionContext.setKeepContainersAcrossApplicationAttempts(ApplicationSubmissionConstant.defaultKeepContainerAcrossApplicationAttempts)
     appSubmissionContext
   }
 
